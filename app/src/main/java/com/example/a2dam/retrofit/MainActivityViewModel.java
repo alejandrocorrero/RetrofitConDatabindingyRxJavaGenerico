@@ -1,8 +1,19 @@
 package com.example.a2dam.retrofit;
 
-/**
- * Created by Usuario on 16/02/2018.
- */
+import android.app.Application;
+import android.arch.lifecycle.AndroidViewModel;
+import android.arch.lifecycle.LiveData;
+import android.support.annotation.NonNull;
 
-public class MainActivityViewModel {
+import com.example.a2dam.retrofit.api.responses.PeopleResponse;
+import com.example.a2dam.retrofit.api.responses.PlanetResponse;
+
+public class MainActivityViewModel extends AndroidViewModel {
+    LiveData<PeopleResponse> people;
+    LiveData<PlanetResponse> planet;
+
+    public MainActivityViewModel(@NonNull Application application) {
+        super(application);
+        Composit
+    }
 }
