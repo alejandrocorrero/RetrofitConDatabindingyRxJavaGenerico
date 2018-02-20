@@ -1,6 +1,7 @@
 package com.example.a2dam.retrofit.api;
 
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class SwapiClient {
@@ -18,6 +19,7 @@ public class SwapiClient {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://swapi.co/api/")
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
         service = retrofit.create(SwapiService.class);
     }
