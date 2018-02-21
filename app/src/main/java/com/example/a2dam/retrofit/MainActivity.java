@@ -1,49 +1,56 @@
 package com.example.a2dam.retrofit;
 
+import android.databinding.DataBindingUtil;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.TextView;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 
 import com.example.a2dam.retrofit.api.SwapiClient;
 import com.example.a2dam.retrofit.api.SwapiService;
 import com.example.a2dam.retrofit.api.responses.PeopleResponse;
-import com.example.a2dam.retrofit.api.responses.Result;
+import com.example.a2dam.retrofit.api.responses.Planet;
+import com.example.a2dam.retrofit.api.responses.Planets;
+import com.example.a2dam.retrofit.databinding.ActivityMainBinding;
 
 import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
     private SwapiService swapiService;
-    private Button btnPersona;
-    private TextView lblPersona;
+    private ActivityMainBinding mBinding;
+    private MainActivityAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_main);
-        swapiService = SwapiClient.getInstance().getService();
-        lblPersona = findViewById(R.id.lblPersona);
-        btnPersona = findViewById(R.id.btnPersona);
-        btnPersona.setOnClickListener(v -> obtenerPersona());
+         mBinding= DataBindingUtil.setContentView(this, R.layout.activity_main);
+         adapter= new MainActivityAdapter();
+        RecyclerView recyclerView = mBinding.list;
+        recyclerView.setAdapter(adapter);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        swapiService = SwapiClient.getInstance(this).getService();
+        obtenerPersona();
     }
 
     private void obtenerPersona() {
         Observable<PeopleResponse> llamada = swapiService.getPeoples();
-        (Observable<PeopleResponse>)swapiService.getPeoples(),PeopleResponse.class, true, true);
         llamada.observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io()).subscribe(this::setPeople);
     }
 
-    private void setPeople(PeopleResponse results) {
-        lblPersona.setText(results.getResults().get(2).getName());
+
+
+    private void setPeople(PeopleResponse peopleResponse) {
+        adapter.setList(peopleResponse.getResults());
+
     }
 
 

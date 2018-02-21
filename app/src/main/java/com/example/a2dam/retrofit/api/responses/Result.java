@@ -1,11 +1,17 @@
 
 package com.example.a2dam.retrofit.api.responses;
 
+import android.databinding.BaseObservable;
+import android.databinding.Bindable;
+
 import java.util.List;
+
+
+import com.android.databinding.library.baseAdapters.BR;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Result {
+public class Result extends BaseObservable {
 
     @SerializedName("name")
     @Expose
@@ -56,12 +62,14 @@ public class Result {
     @Expose
     private String url;
 
+    @Bindable
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+        notifyPropertyChanged(BR.name);
     }
 
     public String getHeight() {
