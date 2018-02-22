@@ -1,36 +1,51 @@
 package com.example.a2dam.retrofit;
 
+import android.arch.lifecycle.LifecycleOwner;
+import android.support.annotation.NonNull;
+import android.support.v7.recyclerview.extensions.DiffCallback;
+import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.example.a2dam.retrofit.api.SwapiClient;
-import com.example.a2dam.retrofit.api.SwapiService;
 import com.example.a2dam.retrofit.api.responses.Planet;
 import com.example.a2dam.retrofit.api.responses.Result;
 import com.example.a2dam.retrofit.databinding.ActivityMainItemBinding;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import io.reactivex.Observable;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
+import java.util.Objects;
 
 
-public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapter.ViewHolder> {
+public class MainActivityAdapter extends ListAdapter<Result, MainActivityAdapter.ViewHolder> {
 
+    private final LifecycleOwner ctr;
     private List<Result> people = new ArrayList<>();
-    private List<Planet> planets = new ArrayList<>();
-    private SwapiService swapiService;
+    private MainActivityViewModel mviewmodel;
+
+    MainActivityAdapter(MainActivityViewModel viewModel, LifecycleOwner context) {
+        super(new DiffCallback<Result>() {
+            @Override
+            public boolean areItemsTheSame(@NonNull Result oldStudent, @NonNull Result newStudent) {
+                return Objects.equals(oldStudent.getName(), newStudent.getName());
+            }
+
+            @Override
+            public boolean areContentsTheSame(@NonNull Result oldStudent,
+                                              @NonNull Result newStudent) {
+                return oldStudent.equals(newStudent);
+            }
+        });
+        this.mviewmodel = viewModel;
+        this.ctr = context;
+    }
 
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         ActivityMainItemBinding binding = ActivityMainItemBinding.inflate(
                 LayoutInflater.from(parent.getContext()), parent, false);
-        swapiService = SwapiClient.getInstance(parent.getContext()).getService();
+
         return new ViewHolder(binding);
     }
 
@@ -38,21 +53,16 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
     @Override
     public void onBindViewHolder(MainActivityAdapter.ViewHolder holder, int position) {
         String cosa = people.get(position).getHomeworld().replaceAll("\\D+", "");
-        Observable<Planet> llamada = swapiService.getPlanet(Integer.parseInt(cosa));
-
-        llamada.observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io()).subscribe(planet ->  holder.bind(people.get(position),planet));
+        mviewmodel.getPlanet(Integer.parseInt(cosa), position).observe(ctr, p -> holder.bind(people.get(position), p));
 
 
     }
 
-    void setPlanet(List<Planet> planet) {
-        this.planets = planet;
-        notifyDataSetChanged();
-    }
 
-    void setList(List<Result> list) {
+    @Override
+    public void setList(List<Result> list) {
         this.people = list;
-        notifyDataSetChanged();
+        super.setList(list);
     }
 
     @Override
